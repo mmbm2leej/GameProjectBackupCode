@@ -1,0 +1,47 @@
+//CREATE
+
+debugmode = false;
+
+linesep = 32;
+
+
+
+
+
+//STEP
+
+if (keyboard_check_pressed(vk_f1)) {
+	debugmode = !debugmode;
+}
+
+
+
+
+
+//DRAW GUI
+
+if (debugmode) {
+	draw_set_colour(c_red);
+
+	draw_text(32,	linesep,		"Current room: ");
+	draw_text(192,	linesep,		room_get_name(room));
+	
+	draw_text(32,	linesep * 2,	"Player State: ");
+	switch (obj_player.mystate) {
+		case 0: draw_text(192,	linesep * 2,	"Free"); break; 
+		case 1: draw_text(192,	linesep * 2,	"Melee"); break; 
+		case 2: draw_text(192,	linesep * 2,	"Ranged"); break; 
+		case 3: draw_text(192,	linesep * 2,	"Jump"); 
+		
+	}
+
+	draw_text(32,	linesep * 3,	"Player X:");
+	draw_text(160,	linesep * 3,	obj_player.x);
+	
+	draw_text(32,	linesep * 4,	"Player Y:");
+	draw_text(160,	linesep * 4,	obj_player.y);
+	
+	draw_text(32,	linesep * 5,	"Player HP:");
+	draw_text(160,	linesep * 5,	obj_player.myhealth);
+
+}
