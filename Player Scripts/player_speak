@@ -1,0 +1,16 @@
+var dialoguepartner = instance_place(x,y,obj_npc);
+var partnername = dialoguepartner.myname;
+with (dialoguepartner) mystate = NPCSTATES.speaking;
+
+with (obj_dialogmanager) {
+	partnerid = dialoguepartner;
+	playerpartner = partnername;
+	if (!dialoguecomplete) dialoguestatus = true;
+}
+
+
+if (obj_dialogmanager.dialoguecomplete) {
+	with (obj_dialogmanager) dialoguestatus = false;
+	with (dialoguepartner) mystate = NPCSTATES.idle;
+	mystate = PLAYERSTATE.free;
+}
