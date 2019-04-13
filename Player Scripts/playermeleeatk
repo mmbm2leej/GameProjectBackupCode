@@ -1,0 +1,51 @@
+#region Attacking
+// Melee 
+
+hsp = 0;
+var face = currentface;
+
+//var current = currentattack;
+//if (currentattack = 1) 
+
+if (sprite_index != (spr_codameleefwd0)) {
+	sprite_index = spr_codameleefwd0;
+	image_index = 0;
+	image_xscale = face;
+
+	//ds_list_clear(hitbyAttack);
+	
+}
+/*
+
+mask_index = (melee hitbox sprite);
+var hitbyAttackNow = ds_list_create();
+var hits = instance_place_list(x,y,obj_enemy,hitbyAttackNow,false);
+if (hits > 0) {
+	for (i = 0; i < hits; ++i) {
+		//if the instance is not hit by the attack yet
+		var hitID = hitbyAttackNow[| i];
+		if (ds_list_find_index(hitbyAttack,hitID) == -1) {
+			ds_list_add(hitbyAttack,hitID);
+			with (hitID) {
+				//whatever you want to do with the enemy that was hit;
+			
+			}
+		}
+	}
+}
+ds_list_destroy(hitbyAttackNow);
+mask_index = idlesprite;
+
+*/
+
+if (animation_end()) image_index = 12;
+
+if (!input_melee) currentattackrefreshtimer--;
+if (currentattackrefreshtimer < 0) {
+	currentattack = 0;
+	currentattackrefreshtimer = currentattackrefreshtimermax;
+	mystate = PLAYERSTATE.free;
+	
+}
+
+#endregion
