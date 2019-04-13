@@ -1,0 +1,163 @@
+#region Inputs
+input_next = (keyboard_check_pressed(vk_space) || mouse_check_button_pressed(mb_left));
+
+
+#endregion
+
+#region If the game is playable state, and not cutscene
+
+if (instance_exists(obj_player)) {
+
+	if ((dialoguestatus) && (obj_player.mystate == PLAYERSTATE.speaking)) {
+		if (obj_dialogbox.dboxready) {
+		
+	#region If speaking wth NPC Elder
+			if (playerpartner == "Elder") {
+				var leftspkrid = instance_find(obj_leftspeaker,0);
+				var rightspkrid = instance_find(obj_rightspeaker,0);
+				with (leftspkrid) {		mysprite = spr_dialoguespriteph; } //Update this when i have elder dialogue sprite
+				with (rightspkrid) {	mysprite = spr_codadialogue; }
+				if ((messagepage == 0) || (messagepage % 2 == 0)) {
+					with (leftspkrid) active = true;
+					with (rightspkrid) active = false;
+				} else {
+					with (leftspkrid) active = false;
+					with (rightspkrid) active = true;
+				}
+				targetmsg = Elder_message[messagepage];
+				currentspeaker = Elder_speaker[messagepage];
+				if (Elder_speaker[messagepage] == "Elder") speakeraudio = snd_elder_text;
+				else if (Elder_speaker[messagepage] == "Coda") speakeraudio = snd_coda_text;
+				if (input_next) {
+					if (messagepage < (array_length_1d(Elder_speaker)-1) ) {
+						currentmsg_refresh();
+						messagepage++;
+					} else {
+						dialoguecomplete = true;
+						dialoguestatus = false;
+					}
+	
+				}
+	
+			}
+		
+	#endregion
+	
+	#region If speaking with NPC Waelen
+	
+		if (playerpartner == "Waelen") {
+					var leftspkrid = instance_find(obj_leftspeaker,0);
+					var rightspkrid = instance_find(obj_rightspeaker,0);
+					with (leftspkrid) mysprite = spr_dialoguespriteph; //Change this when theres a dialogue sprite for Waelen
+					with (rightspkrid) mysprite = spr_codadialogue; 
+					if ((messagepage == 0) || (messagepage % 2 == 0)) {
+						with (leftspkrid) active = true;
+						with (rightspkrid) active = false;
+					} else {
+						with (leftspkrid) active = false;
+						with (rightspkrid) active = true;
+					}
+					targetmsg = Waelen_msg[messagepage];
+					currentspeaker = Waelen_spkr[messagepage];
+					if (Waelen_spkr[messagepage] == "Tess") speakeraudio = snd_elder_text;
+					else if (Waelen_spkr[messagepage] == "Coda") speakeraudio = snd_coda_text;
+					if (input_next) {
+						if (messagepage < (array_length_1d(Waelen_spkr)-1) ) {
+							currentmsg_refresh();
+							messagepage++;
+						} else {
+							dialoguecomplete = true;
+							dialoguestatus = false;
+						}
+	
+					}
+	
+				}
+				
+	#endregion
+	
+	#region If speaking with NPC Tess
+		if (playerpartner == "Tess") {
+				var leftspkrid = instance_find(obj_leftspeaker,0);
+				var rightspkrid = instance_find(obj_rightspeaker,0);
+				with (leftspkrid) mysprite = spr_tessdialogue; 
+				with (rightspkrid) mysprite = spr_codadialogue; 
+				if ((messagepage == 0) || (messagepage % 2 == 0)) {
+					with (leftspkrid) active = true;
+					with (rightspkrid) active = false;
+				} else {
+					with (leftspkrid) active = false;
+					with (rightspkrid) active = true;
+				}
+				targetmsg = Tess_msg[messagepage];
+				currentspeaker = Tess_spkr[messagepage];
+				if (Tess_spkr[messagepage] == "Tess") speakeraudio = snd_tess_text;
+				else if (Tess_spkr[messagepage] == "Coda") speakeraudio = snd_coda_text;
+				if (input_next) {
+					if (messagepage < (array_length_1d(Tess_spkr)-1) ) {
+						currentmsg_refresh();
+						messagepage++;
+					} else {
+						dialoguecomplete = true;
+						dialoguestatus = false;
+					}
+	
+				}
+	
+			}
+		
+	
+	
+	
+	
+	
+	
+	
+	#endregion
+	
+	
+	
+		}
+	
+	} 
+	
+}
+
+#endregion
+
+#region Variables
+leftborder = obj_dialogbox.bbox_left + 20;
+speakertopbound = obj_dialogbox.bbox_top + 20;
+texttopborder = obj_dialogbox.bbox_top + 50;
+rightborder = obj_dialogbox.bbox_right - 20;
+botborder = obj_dialogbox.bbox_bottom - 20;
+
+
+
+#endregion
+
+#region Controlling the Dialog Box object
+
+if (!dialoguestatus) {
+	targetmsg = "";
+	currentmsg = "";
+	charcounter = 0;
+	messagepage = 0;
+	with (obj_leftspeaker) active = false;
+	with (obj_rightspeaker) active = false;
+}
+
+
+#endregion
+
+#region Left and Right Dialogue Sprites
+
+if (!instance_exists(obj_leftspeaker)) instance_create_layer(0,0,"dialoguelayer",obj_leftspeaker);
+if (!instance_exists(obj_rightspeaker)) instance_create_layer(0,0,"dialoguelayer",obj_rightspeaker);
+
+
+#endregion
+
+
+
+
