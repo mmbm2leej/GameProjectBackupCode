@@ -1,0 +1,175 @@
+jumping = false;
+
+
+#region Horizontal Movement(Free state)
+
+var movedir = input_right - input_left;
+hsp = movedir * movespd;
+if ((!jumping) && (idletimer > 0)) switch abs(hsp) {
+	case 0: sprite_index = spr_codaidle; break;	
+	case walkspd: sprite_index = spr_codawalk; break;
+	case runspd: sprite_index = spr_codarun;
+	
+	
+}
+	
+	
+if (hsp != 0) { 
+	currentface = -1 * sign(hsp);
+	image_xscale = currentface;
+}
+
+
+#region Horizontal Collision
+
+if (place_meeting(x+hsp,y,obj_boundary)) {
+	while (!place_meeting(x+sign(hsp),y,obj_boundary)) {
+		x += sign(hsp);	
+	}
+	hsp = 0;		//this is causing sprite to collide with the floor
+}
+
+
+
+#endregion
+
+
+#endregion
+
+#region Gravity and Vertical Collision(below)
+
+if (vsp <= 0) vsp += grav; else vsp += 2*grav;
+
+if (place_meeting(x,y+vsp,obj_boundary)) {
+	while (!place_meeting(x,y+sign(vsp),obj_boundary)) {
+		y += sign(vsp);	
+	}
+	vsp = 0;		//this is causing sprite to collide with the floor
+}
+
+
+/*
+if (!place_meeting(id.x,id.y+1,obj_boundary)) {
+	if (vsp < 0) {
+		vsp += grav;
+	} else {
+		vsp += 2*grav;
+	}
+} else {
+	vsp = 0;
+}
+*/
+
+
+#region Unsticking player object
+
+if (place_meeting(x,y,obj_boundary)) {
+	if (!place_meeting(x,id.bbox_top-1,obj_boundary)) {
+		y--;	
+	}
+	
+}
+
+
+#endregion
+
+#endregion
+
+
+x += hsp;
+y += vsp;
+
+#region Taking damage
+
+if (keyboard_check_pressed(ord("O"))) {		//Simulate taking damage
+	global.playercurrenthp -= 10;
+	tookrecenthit = true;
+	global.playerhpregentimer = global.playerhpregentimermax;
+}
+
+if ((outofcombat) && (tookrecenthit)) {
+	global.playerhpregentimer--;
+	
+	if (global.playerhpregentimer < 0) {
+		global.playercurrenthp = approach(global.playercurrenthp,global.playermaxhp,global.playerhpregen);
+		
+		if (global.playercurrenthp == global.playermaxhp) {
+			tookrecenthit = false;	
+			
+		}
+	}
+	
+}
+
+
+
+#endregion
+
+#region Transitioning rooms
+
+if (place_meeting(x,y, obj_transitionboundary)) {
+	var partner = (instance_place(x,y,obj_transitionboundary));
+	with (obj_roomsequence) {
+		if (!doTransition) {
+			targetRoom = partner.mytargetroom;
+			targetx = partner.mytargetx;
+			targety = partner.mytargety;
+			doTransition = true;
+		}
+	}
+	
+}
+
+
+#endregion
+
+#region Toggling
+//Toggling run and walk
+if (toggle_runwalk) {
+	if (movespd == walkspd) movespd = runspd; else movespd = walkspd;
+}
+#endregion
+
+#region Attack State Transition
+if (input_melee) mystate = PLAYERSTATE.melee;
+else if (input_shoot) mystate = PLAYERSTATE.ranged;
+	
+#endregion
+
+#region Long idle
+
+
+if (idletimer > 0) idletimer--;
+if (input_right || input_jump || toggle_runwalk || input_shoot || input_melee || input_interact) 
+	idletimer = idletimermax;
+		
+
+if (idletimer <= 0) {
+	mystate = PLAYERSTATE.longidle;
+} 
+
+
+
+#endregion
+
+#region Jumping
+
+if ((input_jump) && (place_meeting(x,y+1,obj_boundary))) {
+	mystate = PLAYERSTATE.jump;
+}
+
+#endregion
+
+
+#region Speaking to an NPC
+
+if (input_interact && (place_meeting(x,y,obj_npc))) {
+	with (obj_dialogmanager) {
+		dialoguestatus = false;
+		dialoguecomplete = false;
+	}
+	mystate = PLAYERSTATE.speaking;
+
+}
+
+#endregion
