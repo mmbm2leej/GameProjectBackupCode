@@ -1,0 +1,42 @@
+//CREATE
+
+musicplaying = false;
+songplayingname = noone;
+
+
+
+
+
+//STEP
+
+#region What to do in Azaga
+
+	if (room == playareaAzaga) {
+		if (!musicplaying) {
+			songplayingname = audio_play_sound(sound_azaga_bgm,0,true);
+			audio_sound_gain(songplayingname, 0, 0);
+			audio_sound_gain(songplayingname, 0.4, 5000);
+			musicplaying = true;
+		} else {
+			if (obj_dialogmanager.dialoguestatus) {
+				if (audio_sound_get_gain(songplayingname) > 0.05) {
+					audio_sound_gain(songplayingname,0.05,2000);
+				} 
+			} else {
+				if (audio_sound_get_gain(songplayingname) < 0.4) {
+					audio_sound_gain(songplayingname, 0.4, 5000);
+				} 
+				
+			}
+		
+		}
+
+	}
+
+#endregion
+
+
+
+//ROOM_END
+
+audio_stop_all();
