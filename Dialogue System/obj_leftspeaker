@@ -1,0 +1,42 @@
+//CREATE
+
+active = false;
+
+targetx = 0;
+
+speakingx = 0;
+idlex = 0;
+
+mysprite = spr_dialoguespriteph;
+
+
+//STEP
+
+#region Setting Marks for Positions as the game is running
+if (instance_exists(obj_dialogbox)) {
+	var dboxid = instance_find(obj_dialogbox, 0);
+	speakingx = dboxid.bbox_left + 40;
+	idlex = dboxid.bbox_left - 120;
+	id.y = dboxid.bbox_top;
+}
+
+#endregion
+
+#region Active and Inactive States
+
+if (active) {
+	targetx = speakingx;
+	image_alpha = approach(image_alpha, 1, 0.1);
+} else {
+	targetx = idlex;
+	image_alpha = approach(image_alpha, 0, 0.1);
+}
+
+if (id.x != targetx) {
+	id.x += (targetx - id.x)/5;
+}
+
+
+#endregion
+
+if (mysprite != noone) sprite_index = mysprite;
