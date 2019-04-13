@@ -1,14 +1,12 @@
-//CREATE
-
 #region Movement Variables
 hsp = 0;
 vsp = 0;
-walkspd = 4;
-runspd = 7;
+walkspd = 1;
+runspd = 3;
 movespd = walkspd;
-gravdefault = 0.2;
+gravdefault = 0.18;
 grav = gravdefault;
-jumpspd = 8;
+jumpspd = -7;
 currentface = 1;
 idletimermax = 600;
 idletimer = idletimermax;
@@ -16,9 +14,13 @@ idletimer = idletimermax;
 enum PLAYERSTATE {
 	free = 0,
 	melee = 1,
-	ranged = 2,
-	jump = 3,
-	fall = 4
+	meleecombo = 2,
+	ranged = 3,
+	longidle = 4,
+	death = 5,
+	jumprise = 6,
+	speaking = 7,
+	fall = 8
 }
 
 
@@ -26,6 +28,7 @@ didshoot = false;
 shooting = false;
 jumping = false;
 landing = false;
+outofcombat = true;
 
 mystate = PLAYERSTATE.free;
 
@@ -37,189 +40,156 @@ mystate = PLAYERSTATE.free;
 
 myhealth = 30;
 tookrecenthit = false;
+laserpowercost = 8;
 
 
 #endregion
+
+#region Attack States
+currentattack = 0;
+currentattackrefreshtimermax = 60;
+currentattackrefreshtimer = currentattackrefreshtimermax;
+
+
+#endregion
+
+
 
 
 
 
 //STEP
+#region Inputs
 
-#region All user inputs
 input_left = (keyboard_check(ord("A")));
 input_right = (keyboard_check(ord("D")));
 input_jump = (keyboard_check_pressed(vk_space));
 toggle_runwalk = (keyboard_check_pressed(vk_shift));
 input_shoot = (mouse_check_button_pressed(mb_left));
-
+input_melee = (mouse_check_button_pressed(mb_right) || (keyboard_check_pressed(ord("K"))));
 input_interact = (keyboard_check_pressed(ord("E")));
+
 #endregion
 
+#region State system
 
-#region Toggling
-//Toggling run and walk
-if (toggle_runwalk) {
-	if (movespd == walkspd) movespd = runspd; else movespd = walkspd;
-}
-#endregion
-
-
-#region Horizontal Movement
-
-if (mystate == PLAYERSTATE.free) {
-	playerfree();
-}
-
-//Horizontal Movement
-/*
-if (!place_meeting(x+hsp,y,obj_boundary)) {
-*/
-
-/*
-} else if (!place_meeting(x+(sign(hsp)),y,obj_boundary)) x += sign(hsp);	
-*/
-	
-#endregion
-
-
-#region Horizontal Collision(commented out)
-/*
-if (place_meeting(x + hsp,y, obj_obstacle)) {	//need to create an obj_obstacle
-	while (!place_meeting(x+sign(hsp),y,obj_obstacle)) {
-		x += sign(hsp);
+	switch mystate {
+		case PLAYERSTATE.free: playerfree(); break;
+		case PLAYERSTATE.melee: playermeleeatk(); break;
+		//case PLAYERSTATE.meleecombo: playermeleecombo(); break;
+		case PLAYERSTATE.ranged: playerrangedatk(); break;
+		case PLAYERSTATE.longidle: player_longidle(); break;
+		case PLAYERSTATE.death: player_gameover(); break;
+		case PLAYERSTATE.jumprise: player_jumprise(); break;
+		case PLAYERSTATE.fall: player_fall(); break;
+		case PLAYERSTATE.speaking: player_speak();
 	}
-}
 
-*/
+
 #endregion
 
 
 #region Gravity and Vertical Collision(below)
 
+if (vsp <= 0) vsp += grav; else vsp += 2*grav;
+
+if (place_meeting(x,y+vsp,obj_boundary)) {
+	while (!place_meeting(x,y+sign(vsp),obj_boundary)) {
+		y += sign(vsp);	
+	}
+	vsp = 0;		//this is causing sprite to collide with the floor
+}
+
+
+/*
 if (!place_meeting(id.x,id.y+1,obj_boundary)) {
-	vsp += grav;
+	if (vsp < 0) {
+		vsp += grav;
+	} else {
+		vsp += 2*grav;
+	}
 } else {
 	vsp = 0;
-	image_xscale = currentface;
 }
-
-#endregion
-
-
-#region Jump & Fall
-
-if (mystate == PLAYERSTATE.jump) {
-	playerjump(); 
-}
-
-if (mystate == PLAYERSTATE.fall) {
-	playerfall();
-}
-
-#endregion
+*/
 
 
-#region Things that Happen regardless of state
-idletimer--;
+#region Unsticking player object
 
-if ((input_jump) || (input_left) || (input_right)) {
-	idletimer = idletimermax;	
-}
-
-if (idletimer < 0) {
-	sprite_index = spr_codalongidle;
-	image_xscale = currentface;
-	if (image_index < 84) {
-		image_speed = 1;	
-	} else {
-		image_speed = 0;
-		image_index = 85;
-	}
-}
-
-//Footstep sound loop
-if (place_meeting(x,y+1,obj_boundary) && (abs(hsp) > 0)) {
-	if (!audio_is_playing(snd_footstep_ph)) {
-		audio_play_sound(snd_footstep_ph,10,true);
-	}
-} else {
-	if (audio_is_playing(snd_footstep_ph)) {
-		audio_stop_sound(snd_footstep_ph);	
+if (place_meeting(x,y,obj_boundary)) {
+	if (!place_meeting(x,id.bbox_top-1,obj_boundary)) {
+		y--;	
 	}
 	
 }
 
 
-//Put up the health bar HUD if there isnt one
-if (!instance_exists(obj_healthbar)) instance_create_layer(0,0, "managerlayer",obj_healthbar);
-
+#endregion
 
 #endregion
 
 
-#region Interacting with NPCs
-
-if ((place_meeting(x,y,obj_npc)) && (input_interact)) {
-	var partner = instance_place(x,y,obj_npc);
-	with (partner) mystate = NPCSTATES.speaking;
-	
-}
 
 
-#endregion
+x += hsp;
+y += vsp;
 
+#region Taking damage
 
-#region Attacking Enemies
+if (global.playercurrenthp < 0) global.playercurrenthp = 0;
 
-if (mystate == PLAYERSTATE.melee) {
-	playermeleeatk();
-}
-
-if (mystate == PLAYERSTATE.ranged) {
-	playerrangedatk();
-}
-
-
-
-#endregion
-
-
-#region Taking on the true hp
-
-if (instance_exists(obj_globalvarbank)) {
-
-myhealth = global.playercurrenthp;
-	
-}
-
-
-#endregion
-
-
-#region Take Damage
-
-if (keyboard_check_pressed(ord("O"))) {
-	global.playercurrenthp -= 10;		//simulate taking damage
+if (keyboard_check_pressed(ord("O")) && (global.playercurrenthp > 0)) {		//Simulate taking damage
+	global.playercurrenthp -= 10;
 	tookrecenthit = true;
+	global.playerhpregentimer = global.playerhpregentimermax;
 }
 
-if (tookrecenthit) {
-	global.playerhpregentimer--;
+if (mystate != PLAYERSTATE.death) {
+	if ((outofcombat) && (tookrecenthit)) {
+		global.playerhpregentimer--;
 	
-	if (global.playerhpregentimer < 0) {
-		tookrecenthit = false;
+		if (global.playerhpregentimer < 0) {
+			global.playercurrenthp = approach(global.playercurrenthp,global.playermaxhp,global.playerhpregen);
+		
+			if (global.playercurrenthp == global.playermaxhp) {
+				tookrecenthit = false;	
+			
+			}
+		}
+	}
+}
+
+
+
+#endregion
+
+#region Transitioning rooms
+
+if (place_meeting(x,y, obj_transitionboundary)) {
+	var partner = (instance_place(x,y,obj_transitionboundary));
+	with (obj_roomsequence) {
+		if (!doTransition) {
+			targetRoom = partner.mytargetroom;
+			targetx = partner.mytargetx;
+			targety = partner.mytargety;
+			doTransition = true;
+		}
 	}
 	
 }
 
-if (!tookrecenthit) {
-	global.playerhpregentimer = global.playerhpregentimermax;
-	global.playercurrenthp = approach(global.playercurrenthp, global.playermaxhp, global.playerhpregen);
-}
 
 #endregion
 
+
+#region Death Sequence
+
+if (global.playercurrenthp <= 0) {
+	mystate = PLAYERSTATE.death;
+	player_gameover();	
+}
+
+#endregion
 
 
 
