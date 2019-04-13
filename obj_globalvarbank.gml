@@ -1,5 +1,3 @@
-//CREATE
-
 
 #region Player Stats
 global.playermaxhp = 80;
@@ -17,10 +15,10 @@ global.playerdmgboostcoeff = 0;
 global.playertenacity = 0;
 global.playerluck = 0;
 global.playerparrychance = 0;
+global.playerpowermax = 50;
+global.playerpowercurrent = global.playerpowermax;
 
 #endregion
-
-
 
 #region NPC stats and Behaviors
 
@@ -99,6 +97,28 @@ enum ENEMYSTATE {
 //Create Enemy masterlist database
 global.ds_ENEMYDB = ds_grid_create(8,2);	//Currently 8 aspects, 2 types
 
+#region Hellbird Data
+ds_grid_set(global.ds_ENEMYDB, 0, 0, "Hellbird");
+ds_grid_set(global.ds_ENEMYDB, 1, 0, spr_hellbirdidle);
+ds_grid_set(global.ds_ENEMYDB, 2, 0, spr_hellbirdwalk);
+ds_grid_set(global.ds_ENEMYDB, 3, 0, spr_hellbirdwalk); // change this to a run later
+ds_grid_set(global.ds_ENEMYDB, 4, 0, 20);
+ds_grid_set(global.ds_ENEMYDB, 5, 0, 5);
+ds_grid_set(global.ds_ENEMYDB, 6, 0, 3);
+ds_grid_set(global.ds_ENEMYDB, 7, 0, 8);
+#endregion
+
+#region Spikehound Data
+ds_grid_set(global.ds_ENEMYDB, 0, 1, "Spike Hound");
+ds_grid_set(global.ds_ENEMYDB, 1, 1, spr_shidle);
+ds_grid_set(global.ds_ENEMYDB, 2, 1, spr_shwalk);
+ds_grid_set(global.ds_ENEMYDB, 3, 1, spr_shwalk); // change this to a run later
+ds_grid_set(global.ds_ENEMYDB, 4, 1, 40);
+ds_grid_set(global.ds_ENEMYDB, 5, 1, 10);
+ds_grid_set(global.ds_ENEMYDB, 6, 1, 4);
+ds_grid_set(global.ds_ENEMYDB, 7, 1, 9);
+#endregion
+
 #region Fill the database with enemy info
 
 //Hellbird Enemy
@@ -130,18 +150,13 @@ if (!instance_exists(obj_enemyspawner)) instance_create_layer(x,y,"managerlayer"
 
 
 
+#region Player Inventory
+
+global.InvWidth = 5;
+global.playerInventory = ds_grid_create(global.InvWidth, 1);
 
 
-
-
-
-
-
-//CLEAN UP
-
-ds_grid_destroy(global.ds_ENEMYDB);
-ds_grid_destroy(global.ds_NPCDB);
-
+#endregion
 
 
 
