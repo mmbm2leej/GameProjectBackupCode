@@ -1,0 +1,52 @@
+//CREATE
+
+cutscene = false;
+gamestartspawn = true;
+
+
+
+//STEP
+
+
+#region spawning the player
+
+if ((gamestartspawn) && (!instance_exists(obj_player))) {
+	instance_create_layer(960,360,"characterlayer",obj_player);
+} else {
+	gamestartspawn = false;
+}
+
+
+#endregion
+
+
+
+
+#region Objects regarding global variable bank
+
+if (!instance_exists(obj_globalvarbank)) {
+	instance_create_layer(0,0,"managerlayer",obj_globalvarbank);
+}
+
+else 
+
+{
+	if (!instance_exists(obj_healthbar)) {
+		instance_create_layer(0,0,"guilayer",obj_healthbar);	
+	}
+	if (!instance_exists(obj_powerbar)) {
+		instance_create_layer(0,0,"guilayer",obj_powerbar);
+	}
+}
+
+
+#endregion
+
+if (!instance_exists(obj_roomsequence)) instance_create_layer(0,0,"managerlayer",obj_roomsequence);
+if (!instance_exists(obj_debug)) instance_create_layer(0,0,"managerlayer",obj_debug);
+if (!instance_exists(obj_dialogmanager)) instance_create_layer(0,0,"managerlayer",obj_dialogmanager);
+
+
+if (!instance_exists(obj_camera) && (!cutscene)) {
+	instance_create_layer(0,0,"managerlayer",obj_camera);
+}
