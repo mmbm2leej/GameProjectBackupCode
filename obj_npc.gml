@@ -29,9 +29,10 @@ if (mystate == NPCSTATES.idle) {
 	if (idlechoice < 2) {	//stand still
 		sprite_index = myidlesprite;
 	} else {	//walk
-			sprite_index = mywalksprite;
-			currentface = walkdirchoice;
-			hsp = (walkspd * walkdirchoice);		
+		sprite_index = mywalksprite;
+		currentface = walkdirchoice;
+		if (!place_meeting(x+(walkdirchoice*walkspd),y,obj_transitionboundary)) hsp = (walkspd * walkdirchoice);		
+		else hsp = 0;
 	}
 }
 
@@ -52,8 +53,6 @@ if (!place_meeting(id.x,id.y+1,obj_boundary)) {
 
 x += hsp;
 y += vsp;
-
-
 
 
 
