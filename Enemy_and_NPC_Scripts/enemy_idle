@@ -1,0 +1,25 @@
+
+if (myidlechoice == 0) {
+	sprite_index = myidlesprite;
+	image_xscale = myidledirection;
+	hsp = 0;
+	
+} else { //if the myidlechoice is 1
+	if (sprite_index != mywalksprite) {
+		sprite_index = mywalksprite;
+	}
+	hsp = movespd * myidledirection;
+	image_xscale = -1 * myidledirection;
+	
+}
+
+if (instance_exists(obj_player)) {
+	var player = instance_find(obj_player,0);
+	if (distance_to_object(player) < mydetectionrange) {
+		alert = true;
+		mystate = ENEMYSTATE.alert;	
+	}
+
+
+}
+
