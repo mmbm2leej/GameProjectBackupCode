@@ -1,0 +1,25 @@
+if (born) {
+	alpha = approach(alpha,1,0.005);
+	if (alpha == 1) born = false;
+} else {
+	alpha = wave(0.3,0.9,random_range(0.5,2.0),0);
+	if (flickertimer > 0) {
+		flickertimer--;	
+	} else if (flickertimer <= 0) {
+		alpha = random(0.3);
+	} else if (flickertimer < -120) {
+		flickertimer = irandom_range(120,300);
+	}
+
+	rando_culltime--;
+
+	if (rando_culltime < 0) {
+		instance_destroy();	
+	}
+}
+
+if (obj_daycycler.darkness <= 0.4) {
+	image_alpha = approach(image_alpha,0,0.05);
+	if (image_alpha == 0) instance_destroy();
+}
+
