@@ -1,0 +1,7 @@
+if (instance_exists(obj_camera)) {
+camx = obj_camera.x;
+camy = obj_camera.y;
+}
+
+id.x = camx + differencex;
+id.y = camy + differencey;
