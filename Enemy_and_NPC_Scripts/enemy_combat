@@ -1,0 +1,18 @@
+var player = playerid();
+
+with (player) {
+	if (outofcombat) outofcombat = false;
+}
+
+if ((distance_to_object(player) < mycombatdisengage) && (distance_to_object(player) >= mycombatrange)) {
+	if (canattack) {
+	//Attack animation
+	//Calculate damage to player
+	global.playercurrenthp -= 
+	alarm[1] = myattacktimer;
+	canattack = false;
+	
+	}
+	
+	
+}
