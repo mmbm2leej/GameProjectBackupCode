@@ -1,0 +1,2 @@
+draw_sprite_ext(spr_star,0,id.x,id.y,sizerandom,sizerandom,0,clr,alpha);
+draw_sprite_ext(spr_star,0,id.x,id.y,sizerandom,sizerandom,0,c_white,alpha*0.9);
