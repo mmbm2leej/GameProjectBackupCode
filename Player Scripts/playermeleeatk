@@ -1,23 +1,26 @@
 #region Attacking
 // Melee 
-
 hsp = 0;
-var face = currentface;
-
-//var current = currentattack;
-//if (currentattack = 1) 
 
 if (sprite_index != (spr_codameleefwd0)) {
 	sprite_index = spr_codameleefwd0;
 	image_index = 0;
-	image_xscale = face;
-
-	//ds_list_clear(hitbyAttack);
+	image_xscale = currentface;
+	ds_list_clear(hitbyAttack);
 	
 }
-/*
 
-mask_index = (melee hitbox sprite);
+mask_index = spr_codameleefwd0hb;
+
+#region Play Melee 0 sound effect
+if (!audio_is_playing(snd_melee0)) audio_play_sound(snd_melee0,0,false);
+
+
+#endregion
+
+var dmgInflict = global.playermeleedamage;
+var combo_coeff = 0;
+if (instance_exists(obj_combosys)) combo_coeff = obj_combosys.combocurrent;
 var hitbyAttackNow = ds_list_create();
 var hits = instance_place_list(x,y,obj_enemy,hitbyAttackNow,false);
 if (hits > 0) {
@@ -27,20 +30,29 @@ if (hits > 0) {
 		if (ds_list_find_index(hitbyAttack,hitID) == -1) {
 			ds_list_add(hitbyAttack,hitID);
 			with (hitID) {
-				//whatever you want to do with the enemy that was hit;
-			
+				if (!invincible) enemy_takedmg( dmgInflict, combo_coeff);
 			}
 		}
 	}
 }
 ds_list_destroy(hitbyAttackNow);
-mask_index = idlesprite;
+mask_index = spr_codaidle;
 
-*/
+//Trigger Combo
+if ( (input_melee) && (image_index > 4) ) {
+	currentattack++;
+	mystate = PLAYERSTATE.meleecombo;	
+}
 
-if (animation_end()) image_index = 12;
+if (animation_end()) {
+	sprite_index = spr_codaidle;
+	mystate = PLAYERSTATE.free;
+}
+
+
 
 if (!input_melee) currentattackrefreshtimer--;
+
 if (currentattackrefreshtimer < 0) {
 	currentattack = 0;
 	currentattackrefreshtimer = currentattackrefreshtimermax;
