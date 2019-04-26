@@ -1,0 +1,23 @@
+
+var player = noone;
+if (instance_exists(obj_player)) player = obj_player.id;
+else player = id;
+var playerdir = 1;
+var rawdir = point_direction(id.x,id.y,player.x,player.y);
+if ((rawdir <= 90) || (rawdir >= 270)) playerdir = 1; else playerdir = -1;
+
+image_xscale = -1 * playerdir;
+
+if (!invincible) {
+	vsp = -5;
+	hsp = -6 * playerdir;
+	alarm[2] = 60;
+	invincible = true;
+}
+
+if (abs(hsp) > 0) hsp = approach(hsp,0,0.2);
+
+if (alarm[2] <= 5) {
+	mystate = ENEMYSTATE.chase;
+}
+
