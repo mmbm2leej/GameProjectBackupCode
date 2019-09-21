@@ -4,9 +4,11 @@ if (alert) {
 	audio_play_sound(soundchoice,-10,false);
 	var player = noone;
 	if (instance_exists(obj_player)) player = obj_player.id;
-	else player = id;
-	with (player) {
-		if (outofcombat) outofcombat = false;
+	else player = noone;
+	if (player != noone) {
+		with (player) {
+			if (outofcombat) outofcombat = false;
+		}
 	}
 	var playerdir = 1;
 	var rawdir = point_direction(id.x,id.y,player.x,player.y);
@@ -23,6 +25,10 @@ if (abs(hsp) > 0) hsp = approach(hsp,0,0.4);
 
 alerttimer--;
 
-if (alerttimer <= 0) {
-	mystate = ENEMYSTATE.chase;
+if (obj_player.mystate != PLAYERSTATE.death) {
+	if (alerttimer <= 0) {
+		mystate = ENEMYSTATE.chase;
+	}
+} else {
+	mystate = ENEMYSTATE.idle;
 }
