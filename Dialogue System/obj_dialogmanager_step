@@ -1,316 +1,121 @@
-#region Inputs
-input_next = (keyboard_check_pressed(vk_space) || mouse_check_button_pressed(mb_left));
+#region Always Runs
+if (!instance_exists(obj_dbox)) {
+	instance_create_layer(0,0,"dialoguelayer",obj_dbox);
+}
 
+if (dialoguestate) { 
+	with (obj_dbox) dboxActive = true;
+} else {
+	with (obj_dbox) dboxActive = false;	
+}
+	
 
 #endregion
 
-#region If Game is in a cutscene state
-
-	#region Intro Cutscene	(needs to be tested)
-	
-		#region Trigger
-			
-			if (room == rm_introCutscene0) {
-			
-				if	(	(playedintro00 == false)	||	 (intro00start == false)	)	{
-					if (intro00timer == true) {
-						alarm[0] = 120;
-						intro00timer = false;
-					}
-				}
-		
-			}
-		
-		#endregion
-	
-	//this needs to be tested
-	 if (room == rm_introCutscene0) {
-			if (dialoguestatus) {
-				if (obj_dialogbox.dboxready) {
-					var leftspkrid = instance_find(obj_leftspeaker,0);
-					var rightspkrid = instance_find(obj_rightspeaker,0);
-					with (leftspkrid) {		mysprite = spr_dialoguespriteph; } //Update this when i have elder dialogue sprite
-					with (rightspkrid) {	mysprite = spr_codadialogue; }
-					if ((messagepage == 0) || (messagepage % 2 != 0)) {
-						with (leftspkrid) active = true;
-						with (rightspkrid) active = false;
-					} else {
-						with (leftspkrid) active = false;
-						with (rightspkrid) active = true;
-					}
-					targetmsg = IntroCutscene00_message[messagepage];
-					currentspeaker = IntroCutscene00_speaker[messagepage];
-					if (IntroCutscene00_speaker[messagepage] == "Mom") speakeraudio = snd_elder_text;	//this needs to be snd_mom_text or something similar?
-						else if (IntroCutscene00_speaker[messagepage] == "Coda") speakeraudio = snd_coda_text;
-					if (input_next) {
-						if (messagepage < (array_length_1d(IntroCutscene00_speaker)-1) ) {
-							currentmsg_refresh();
-							messagepage++;
-						} else {
-							playedintro00 = true;
-							dialoguecomplete = true;
-							alarm[1] = 120;
-							dialoguestatus = false;
-							
-						}
-	
-					}
-		 
-				 }
-				 
-			}
-			
-	 }
-	
-	
-	
-	
-	
-	
-	#endregion
-
-	#region Cave Cutscenes
-	
-	if (room == rm_caveentrance) {
-		#region Cutscene 0
-		
-			//Shortly after entering the cave
-			
-		
-				if (obj_globalvarbank.caveentrance_cutsceneplayed[0] == false) {
-			
-					if	(	(obj_player.x > 400)	&&		(obj_player.y >= 1114)	)	{
-
-						if (obj_dialogbox.dboxready) {
-							var leftspkrid = instance_find(obj_leftspeaker,0);
-							with (leftspkrid) {		mysprite = spr_codadialogue; } //Update this when i have elder dialogue sprite
-							with (leftspkrid) active = true;
-							targetmsg = "Just have to pick some fruits and head out.";
-							currentspeaker = "Coda";
-							if (input_next) {
-									dialoguecomplete = true;
-									dialoguestatus = false;
-									with (obj_globalvarbank) caveentrance_cutsceneplayed[0] = true;
-							
-							}
-						}		 
-					}	
-				}
-					
-	
-			
-		#endregion
-		#region Cutscene 1
-		
-		#endregion
-		#region Cutscene 2
-		
-		#endregion
-		#region Cutscene 3
-		
-		#endregion
-		#region Cutscene 4
-		
-		#endregion
-		#region Cutscene 5
-		
-		#endregion
-	
+#region Intro
+if (room == rm_introCutscene0) {
+	var introMSet = IntroCutscene00_message;
+	var introSSet = IntroCutscene00_speaker;
+	var portSeq = IntroCutscene00_spkrSequence;
+	with (obj_dbox) {
+		messageSet = introMSet;
+		speakerSet = introSSet;
+		portraitSequence = portSeq;
+		portraitleft = spr_dialoguespriteph;
+		portraitright = spr_codadialogue;
+		speakerLeftSound = snd_elder_text;
+		speakerRightSound = snd_coda_text;
+		message_end = 10;
 	}
-
-	#endregion
+	if (playedIntro = false) dialoguestate = true;
 	
+	if (obj_dbox.dialogueComplete) {
+		playedIntro = true;
+		dialoguestate = false;	
+		if (!doOnce) {
+			alarm[0] = 120;
+			doOnce = true;
+		}
+	}
+}
+
 #endregion
 
-#region If the game is playable state, and not cutscene
+#region Whenever the player speaks to an NPC or triggers a cutscene
 
 if (instance_exists(obj_player)) {
-
-	if ((dialoguestatus) ) {
-		if (obj_dialogbox.dboxready) {
+	if (dialoguestate) {
+		/*
+			cs_source = dialoguepartner;		//instance id of colliding npc object
+			cs_dialoguespeaker = partnername;	//string of npc object name
+			cs_dialoguetext = dialoguepartner.mylines;	//array of strings
+		*/
+		#region Tess
 		
-	#region If speaking wth NPC Elder
-			if (playerpartner == "Elder") {
-				var leftspkrid = instance_find(obj_leftspeaker,0);
-				var rightspkrid = instance_find(obj_rightspeaker,0);
-				with (leftspkrid) {		mysprite = spr_dialoguespriteph; } //Update this when i have elder dialogue sprite
-				with (rightspkrid) {	mysprite = spr_codadialogue; }
-				if ((messagepage == 0) || (messagepage % 2 == 0)) {
-					with (leftspkrid) active = true;
-					with (rightspkrid) active = false;
-				} else {
-					with (leftspkrid) active = false;
-					with (rightspkrid) active = true;
-				}
-				targetmsg = Elder_message[messagepage];
-				currentspeaker = Elder_speaker[messagepage];
-				if (Elder_speaker[messagepage] == "Elder") speakeraudio = snd_elder_text;
-				else if (Elder_speaker[messagepage] == "Coda") speakeraudio = snd_coda_text;
-				if (input_next) {
-					if (messagepage < (array_length_1d(Elder_speaker)-1) ) {
-						currentmsg_refresh();
-						messagepage++;
-					} else {
-						dialoguecomplete = true;
-						dialoguestatus = false;
-					}
-	
-				}
-	
+			#region In Act 1 Azaga
+		if (cs_dialoguespeaker == "Tess") {
+			var msgSet = Tess_act1_message;
+			var spkrSet = Tess_act1_speaker;
+			var portSeq = Tess_act1_spkrSequence;
+			var spkrSpr = cs_spkrSprite;
+			with (obj_dbox) {
+				messageSet = msgSet;
+				speakerSet = spkrSet;
+				portraitSequence = portSeq;
+				portraitleft = spkrSpr;
+				portraitright = spr_codadialogue;
+				speakerLeftSound = snd_tess_text;
+				speakerRightSound = snd_coda_text;
+				message_end = array_length_1d(messageSet)-1;
 			}
-		
-	#endregion
 	
-	#region If speaking with NPC Waelen
-	
-		if (playerpartner == "Waelen") {
-					var leftspkrid = instance_find(obj_leftspeaker,0);
-					var rightspkrid = instance_find(obj_rightspeaker,0);
-					with (leftspkrid) mysprite = spr_dialoguespriteph; //Change this when theres a dialogue sprite for Waelen
-					with (rightspkrid) mysprite = spr_codadialogue; 
-					if ((messagepage == 0) || (messagepage % 2 == 0)) {
-						with (leftspkrid) active = true;
-						with (rightspkrid) active = false;
-					} else {
-						with (leftspkrid) active = false;
-						with (rightspkrid) active = true;
-					}
-					targetmsg = Waelen_msg[messagepage];
-					currentspeaker = Waelen_spkr[messagepage];
-					if (Waelen_spkr[messagepage] == "Tess") speakeraudio = snd_elder_text;
-					else if (Waelen_spkr[messagepage] == "Coda") speakeraudio = snd_coda_text;
-					if (input_next) {
-						if (messagepage < (array_length_1d(Waelen_spkr)-1) ) {
-							currentmsg_refresh();
-							messagepage++;
-						} else {
-							dialoguecomplete = true;
-							dialoguestatus = false;
-						}
-	
-					}
-	
-				}
-				
-	#endregion
-	
-	#region If speaking with NPC Tess
-		if (playerpartner == "Tess") {
-				var leftspkrid = instance_find(obj_leftspeaker,0);
-				var rightspkrid = instance_find(obj_rightspeaker,0);
-				with (leftspkrid) mysprite = spr_tessdialogue; 
-				with (rightspkrid) mysprite = spr_codadialogue; 
-				if ((messagepage == 0) || (messagepage % 2 == 0)) {
-					with (leftspkrid) active = true;
-					with (rightspkrid) active = false;
-				} else {
-					with (leftspkrid) active = false;
-					with (rightspkrid) active = true;
-				}
-				targetmsg = Tess_msg[messagepage];
-				currentspeaker = Tess_spkr[messagepage];
-				if (Tess_spkr[messagepage] == "Tess") speakeraudio = snd_tess_text;
-				else if (Tess_spkr[messagepage] == "Coda") speakeraudio = snd_coda_text;
-				if (input_next) {
-					if (messagepage < (array_length_1d(Tess_spkr)-1) ) {
-						currentmsg_refresh();
-						messagepage++;
-					} else {
-						dialoguecomplete = true;
-						dialoguestatus = false;
-					}
-	
-				}
-	
+			if (obj_dbox.dialogueComplete) {
+				with (cs_source) mystate = NPCSTATES.idle;
+				with (obj_player) mystate = PLAYERSTATE.free;
+				dialoguestate = false;	
 			}
-
-	
-	#endregion
-	
-	#region
-	
-		if (playerpartner == "Scumbag") {
-			
-			var leftspkrid = instance_find(obj_leftspeaker,0);
-			var rightspkrid = instance_find(obj_rightspeaker,0);
-			with (leftspkrid) mysprite = spr_scumbagdialogue; 
-			with (rightspkrid) mysprite = spr_codadialogue; 
-			
-			
-			with (leftspkrid) active = true;
-			with (rightspkrid) active = false;
-			/*
-			if ((messagepage == 0) || (messagepage % 2 == 0)) {
-				with (leftspkrid) active = true;
-				with (rightspkrid) active = false;
-			} else {
-				with (leftspkrid) active = false;
-				with (rightspkrid) active = true;
-			}
-			*/
-				
-				
-			if (!(partnerid.alreadymet)) targetmsg = lootboxdialoguestart[messagepage];
-			else targetmsg = lootboxdialoguemet[messagepage];
-				
-			currentspeaker = "Scumbag";
-			if (lootboxdialoguestart[messagepage] == "Scumbag") speakeraudio = snd_elder_text;
-			else if (lootboxdialoguestart[messagepage] == "Coda") speakeraudio = snd_coda_text;
-			if (input_next) {
-				if (messagepage < (array_length_1d(lootboxdialoguestart)-1) ) {
-					currentmsg_refresh();
-					messagepage++;
-				} else {
-					dialoguecomplete = true;
-					dialoguestatus = false;
-				}
-	
-			}
-		} 
-				
-	
-	#endregion
-	
 		}
+		
+		#endregion
+			
+		#endregion
+			
+		#region Cutscene Object
+		
+		if (cs_sourcetype == "Cutscene") {
+			var msgSet = cs_dialoguetext;
+			var spkrSet = cs_source.mydialoguespeakers;
+			var portSeq = cs_portSequence;
+			var spkrSpr = spr_codadialogue;
+			with (obj_dbox) {
+				portraitSequence = portSeq;
+				messageSet = msgSet;
+				speakerSet = spkrSet;
+				portraitleft = spkrSpr;
+				speakerLeftSound = snd_coda_text;
+				message_end = array_length_1d(messageSet)-1;
+			}
+	
+			if (obj_dbox.dialogueComplete) {
+				with (cs_source) watched = true;
+				with (obj_player) mystate = PLAYERSTATE.free;
+				dialoguestate = false;	
+				
+			}
+			
+			
+			
+		
+		}
+		
+		#endregion
 	
 	} 
 	
-}
-
-#endregion
-
-#region Variables
-leftborder = obj_dialogbox.bbox_left + 20;
-speakertopbound = obj_dialogbox.bbox_top + 16;
-texttopborder = obj_dialogbox.bbox_top + 50;
-rightborder = obj_dialogbox.bbox_right - 20;
-botborder = obj_dialogbox.bbox_bottom - 20;
-
-
-
-#endregion
-
-#region Controlling the Dialog Box object
-
-if (!dialoguestatus) {
-	targetmsg = "";
-	currentmsg = "";
-	charcounter = 0;
-	messagepage = 0;
-	with (obj_leftspeaker) active = false;
-	with (obj_rightspeaker) active = false;
+	
 }
 
 
-#endregion
-
-#region Left and Right Dialogue Sprites
-
-if (!instance_exists(obj_leftspeaker)) instance_create_layer(0,0,"dialoguelayer",obj_leftspeaker);
-if (!instance_exists(obj_rightspeaker)) instance_create_layer(0,0,"dialoguelayer",obj_rightspeaker);
-
 
 #endregion
-
-
 
