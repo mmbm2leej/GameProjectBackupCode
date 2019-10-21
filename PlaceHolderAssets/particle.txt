@@ -1,0 +1,44 @@
+CREATE
+
+mypartshape = pt_shape_disk;
+
+
+///Particle Test
+system=part_system_create();
+part_system_depth(system,-100);
+
+part=part_type_create();
+part_type_shape(part,mypartshape);
+part_type_speed(part,2,8,.1,0);
+part_type_colour1(part,c_red);
+part_type_life(part,20,30);
+part_type_size(part,.1,1,-.01,0);
+part_type_alpha3(part,0.1,0.3,0);
+
+
+
+
+STEP
+
+if(mouse_check_button(mb_left))
+{
+	mypartshape = choose(pt_shape_disk,pt_shape_flare,pt_shape_spark,pt_shape_ring);
+	part_type_shape(part,mypartshape);
+	mypartcolour = choose(c_red,c_aqua,c_green,c_blue,c_lime,c_yellow);
+	part_type_color1(part,mypartcolour);
+    var _dir=random(360);
+    var _dist=400;
+    var _x=x+lengthdir_x(_dist,_dir);
+    var _y=y+lengthdir_y(_dist,_dir);
+    var _part_dir=point_direction(_x,_y,x,y);
+    part_type_direction(part,_part_dir,_part_dir,0,0);
+    part_particles_create(system,_x,_y,part,1);
+}
+
+
+
+
+CLEAN UP
+
+part_system_destroy(system);
+part_type_destroy(part);
